@@ -451,7 +451,15 @@ export default function CarDetails() {
                 </div>
                 <div>
                   <div className="font-semibold">{product.user?.name}</div>
-                  <div className="text-xs text-gray-500">تاجر معتمد</div>
+                  <div className="text-xs text-gray-500">
+                    {product?.user?.type === "showroom"
+                      ? language === "en"
+                        ? "Approved showroom"
+                        : "معرض معتمد"
+                      : language === "en"
+                      ? "Approved Vendor"
+                      : "تاجر معتمد"}
+                  </div>
                 </div>
               </Link>
 
