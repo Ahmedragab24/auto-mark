@@ -21,14 +21,16 @@ export default function MessagesPage() {
   const user = getUserData();
   const { language } = useAppSelector((state: RootState) => state.Language);
   const { data, isLoading } = useGetChatsQuery("", {
-    pollingInterval: 5000,
+    pollingInterval: 1000,
   });
   const { data: UnReadCount } = useMarkAsUnreadCountQuery("", {
-    pollingInterval: 5000,
+    pollingInterval: 1000,
   });
   const unreadCountAllChats: number = UnReadCount?.data?.unread_chats_count;
 
   const AllChats: AllChatTypes[] = data?.chats || [];
+
+  console.log(AllChats);
 
   const [selectedConversation, setSelectedConversation] = useState<
     number | null

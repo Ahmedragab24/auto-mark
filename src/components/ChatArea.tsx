@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useGetChatByIdQuery,
   useGetChatsQuery,
+  useMarkAsReadMutation,
   useSendMessageMutation,
 } from "@/store/apis/chat";
 import { getUserData } from "@/utils/userToken";
@@ -59,14 +60,16 @@ export default function ChatArea({
 }: ChatAreaProps) {
   const user = getUserData();
   const { data: Chats } = useGetChatsQuery("", {
-    pollingInterval: 5000,
+    pollingInterval: 10000,
   });
   const [ChatID, setChatID] = useState<number | undefined>(chatId);
   const { data, refetch, isLoading } = useGetChatByIdQuery(ChatID, {
-    pollingInterval: 1000,
+    pollingInterval: 3000,
   });
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
   const AllChats: AllChatTypes[] = Chats?.chats || [];
+
+  const [MurkASRead] = useMarkAsReadMutation();
 
   // Initialize chat data with default empty values
   const ShowChat: ShowChatType = data || {
@@ -82,6 +85,7 @@ export default function ChatArea({
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasMarkedAsReadRef = useRef<{ [key: number]: boolean }>({});
 
   // Scroll to bottom when messages change
   const scrollToBottom = useCallback(() => {
@@ -93,6 +97,18 @@ export default function ChatArea({
   useEffect(() => {
     scrollToBottom();
   }, [ShowChat?.messages?.data, scrollToBottom]);
+
+  useEffect(() => {
+    if (user && user.token && ChatID && !hasMarkedAsReadRef.current[ChatID]) {
+      try {
+        MurkASRead(ChatID).unwrap();
+        // Mark this chat as read in our ref
+        hasMarkedAsReadRef.current[ChatID] = true;
+      } catch (error) {
+        console.error("Failed to mark notifications as read:", error);
+      }
+    }
+  }, [user, MurkASRead, ChatID]);
 
   // If the ChatId includes in the AllChat
   const chatFound = AllChats.find(
@@ -112,27 +128,27 @@ export default function ChatArea({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check if file is readable
-    const reader = new FileReader();
-    reader.onload = () => {
-      // If we can read the file, it's likely valid
-      // Check file type
-      if (file.type.startsWith("image/")) {
-        setAttachmentType("image");
-      } else {
-        setAttachmentType("file");
-      }
+    // Determine file type
+    if (file.type.startsWith("image/")) {
+      setAttachmentType("image");
+    } else {
+      setAttachmentType("file");
+    }
 
-      setAttachment(file);
-    };
-    reader.onerror = () => {
-      toast({
-        title: "خطأ",
-        description: "الملف غير قابل للقراءة. يرجى اختيار ملف آخر.",
-        variant: "destructive",
-      });
-    };
-    reader.readAsArrayBuffer(file);
+    // Set the attachment
+    setAttachment(file);
+
+    // Show toast notification
+    toast({
+      title: "جاري إرسال الملف",
+      description: `${file.name}`,
+    });
+
+    // Send the file immediately
+    handleFileUpload(file);
+
+    // Clear the input value so the same file can be selected again
+    e.target.value = "";
   };
 
   // Check if string is a valid URL
@@ -154,13 +170,26 @@ export default function ChatArea({
           <div className="max-w-xs">
             <img
               src={
-                `${process.env.NEXT_PUBLIC_BASE_URL || "/placeholder.svg"}${
-                  msg.message
-                }` || "/placeholder.svg"
+                msg.message.startsWith("http")
+                  ? msg.message
+                  : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${msg.message}`
               }
               alt="Image"
-              className="rounded-md max-w-full h-auto"
+              className="rounded-md max-w-full h-auto cursor-pointer"
               loading="lazy"
+              onClick={() => {
+                // Open image in new tab for full view
+                window.open(
+                  msg.message.startsWith("http")
+                    ? msg.message
+                    : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${msg.message}`,
+                  "_blank"
+                );
+              }}
+              onError={(e) => {
+                console.error("Image failed to load:", msg.message);
+                (e.target as HTMLImageElement).src = "/placeholder.svg";
+              }}
             />
           </div>
         );
@@ -291,7 +320,6 @@ export default function ChatArea({
     }
   };
 
-  // Handle file upload - fixed to properly handle file uploads
   const handleFileUpload = async (file: File): Promise<void> => {
     if (!file) return;
 
@@ -305,16 +333,25 @@ export default function ChatArea({
     }
 
     // Validate file type and size
-    const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+    const validImageTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
     const maxFileSize = 5 * 1024 * 1024; // 5MB
 
-    if (attachmentType === "image" && !validImageTypes.includes(file.type)) {
+    const isImage = file.type.startsWith("image/");
+    const fileType = isImage ? "image" : "file";
+
+    if (isImage && !validImageTypes.includes(file.type)) {
       toast({
         title: "خطأ",
         description:
-          "نوع الملف غير مدعوم. يرجى استخدام صور JPEG أو PNG أو GIF.",
+          "نوع الملف غير مدعوم. يرجى استخدام صور JPEG أو PNG أو GIF أو WebP.",
         variant: "destructive",
       });
+      setAttachment(null);
       return;
     }
 
@@ -324,25 +361,42 @@ export default function ChatArea({
         description: "حجم الملف كبير جدًا. الحد الأقصى هو 5 ميجابايت.",
         variant: "destructive",
       });
+      setAttachment(null);
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", file); // Changed "message" to "file" to match expected API parameter
     formData.append("user_id", String(userId));
-    formData.append("type", attachmentType);
+    formData.append("type", fileType);
+    formData.append("message", file); // Add an empty message field to satisfy the API requirement
+
     if (ChatID) {
-      formData.append("chat_id", String(ChatID)); // Ensure chat_id is a string
+      formData.append("chat_id", String(ChatID));
     }
+
     if (productId) {
-      formData.append("product_id", String(productId)); // Add product_id if available
+      formData.append("product_id", String(productId));
     }
 
     try {
+      // Use the sendMessage mutation with the FormData object
       await sendMessage(formData).unwrap();
+
+      // Show success notification
+      toast({
+        title: "تم الإرسال",
+        description: "تم إرسال الملف بنجاح",
+      });
+
+      // Clear the input and reset state
       setAttachment(null);
       setAttachmentType("text");
-      setMessage("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      // Refetch to update the chat with the new message
+      refetch();
     } catch (error) {
       console.error("File upload error:", error);
       const errorMessage =
@@ -352,6 +406,7 @@ export default function ChatArea({
         description: errorMessage,
         variant: "destructive",
       });
+      setAttachment(null);
     }
   };
 
@@ -387,16 +442,12 @@ export default function ChatArea({
         message: message,
         type: "text",
         ...(ChatID && { chat_id: Number(ChatID) }),
-        product_id: productId ? Number(productId) : null,
+        ...(productId ? { product_id: Number(productId) } : null),
       };
 
       sendMessageToServer(newMessage);
     }
   };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [ShowChat?.messages?.data, scrollToBottom]);
 
   return (
     <div className="flex flex-col flex-1 border rounded-2xl overflow-hidden">
