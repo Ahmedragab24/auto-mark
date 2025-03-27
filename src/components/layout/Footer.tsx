@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useCountriesData } from "@/hooks/use-countriesData";
 import { FooterPoliciesLinks } from "@/constants";
+import { Facebook, Linkedin, Twitter } from "lucide-react";
 
 export function Footer() {
   const { language } = useAppSelector((state: RootState) => state.Language);
@@ -278,7 +279,7 @@ export function Footer() {
               </motion.p>
             </motion.div>
 
-            {/* <div className="flex justify-center gap-4 md:justify-start">
+            <div className="flex justify-center gap-4 md:justify-start">
               <Link
                 href={AutoMarkInformation?.linkedin || "#"}
                 target="_blank"
@@ -302,7 +303,7 @@ export function Footer() {
               >
                 <Twitter className="w-5 h-5 text-primary" />
               </Link>
-            </div> */}
+            </div>
           </motion.div>
 
           {/* Countries Section */}
@@ -435,7 +436,7 @@ export function Footer() {
 
         {/* Copyright */}
         <motion.div
-          className="pt-8 text-center border-t border-gray-200"
+          className="pt-8 text-center border-t border-gray-200 flex flex-col gap-2"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{
             opacity: 1,
@@ -458,6 +459,19 @@ export function Footer() {
               : "All rights reserved to AutoMark ©"}
             {new Date().getFullYear()}
           </motion.p>
+          <motion.a
+            href="https://ahmed-elmadany.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-600 hover:text-primary"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            {lang === "ar"
+              ? "مطور الواجهة: Ahmed ElMadany"
+              : "Interface Developer: Ahmed ElMadany"}
+          </motion.a>
         </motion.div>
       </motion.div>
     </motion.footer>

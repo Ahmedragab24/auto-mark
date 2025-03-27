@@ -25,6 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import CryptoJS from "crypto-js";
+import { providerRegisterType } from "@/types";
 
 interface AccountTypeOption {
   id: string;
@@ -82,6 +83,14 @@ export default function AccountTypeSelector() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    const LoginType: providerRegisterType = (user?.login_type ||
+      "normal") as providerRegisterType;
+    if (user && LoginType !== "normal") {
+      setIsPassword(true);
+    }
+  }, [user]);
 
   const handleUpgrade = (type: string) => {
     setSelectedType(type);

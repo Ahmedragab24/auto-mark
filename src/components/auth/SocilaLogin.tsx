@@ -72,11 +72,16 @@ export default function SocialLoginButtons() {
         login_type: "google",
         email: loggedInUser.email || "",
         password: "social-register",
+        phone: loggedInUser.phoneNumber || "",
       };
 
       const response = await socialRegister(userData).unwrap();
       dispatch(setUserData(response));
-      window.location.pathname = "/";
+      console.log(response);
+
+      // setTimeout(() => {
+      //   window.location.pathname = "/";
+      // }, 2000);
 
       toast({
         title: messages.success[language].title,
