@@ -364,7 +364,7 @@ function CarListingCard({
               src={ad.image || "/placeholder.svg"}
               alt={ad.name || "default"}
               fill
-              className="object-fill rounded-xl group-hover:scale-95 transition-all duration-300"
+              className="object-cover rounded-xl group-hover:scale-95 transition-all duration-300"
               sizes="(max-width: 768px) 100vw, 300px"
             />
             <div className="absolute flex items-center justify-between w-full top-8">
