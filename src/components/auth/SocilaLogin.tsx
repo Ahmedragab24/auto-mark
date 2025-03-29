@@ -77,11 +77,10 @@ export default function SocialLoginButtons() {
 
       const response = await socialRegister(userData).unwrap();
       dispatch(setUserData(response));
-      console.log(response);
 
-      // setTimeout(() => {
-      //   window.location.pathname = "/";
-      // }, 2000);
+      setTimeout(() => {
+        window.location.pathname = "/";
+      }, 2000);
 
       toast({
         title: messages.success[language].title,
