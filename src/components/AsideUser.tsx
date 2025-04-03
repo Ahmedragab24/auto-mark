@@ -25,6 +25,7 @@ const AsideUser = () => {
   const language = useAppSelector(
     (state: RootState) => state.Language.language
   );
+  const Token = useAppSelector((state: RootState) => state.UserData?.token);
   const [deleteAccount, { isLoading }] = useDeleteAccountMutation();
   const [open, setOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -39,7 +40,7 @@ const AsideUser = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      await deleteAccount("").unwrap();
+      await deleteAccount(Token).unwrap();
 
       toast({
         title:

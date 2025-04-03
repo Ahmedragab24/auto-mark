@@ -1,9 +1,7 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useCallback, useEffect } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -24,7 +22,8 @@ import type { ProductType, AllShowroomsType, ErrorType } from "@/types";
 import LoginModel from "./LoginModel";
 import { useAppSelector } from "@/store/hooks";
 import type { RootState } from "@/store/store";
-import { Trash2 } from "lucide-react";
+import { HeartIcon, Trash2 } from "lucide-react";
+import { HeartFilledIcon } from "public/Icons/heat";
 
 interface IProps {
   product: ProductType | AllShowroomsType;
@@ -76,13 +75,23 @@ const FavoriteButton: React.FC<IProps> = ({ product, className, type }) => {
             variant: "default",
             description: (
               <div className="flex flex-col items-center justify-center gap-2">
-                <Image
-                  src="/Icons/done.png"
-                  alt="done"
-                  width={20}
-                  height={20}
-                  className="w-10 h-10"
-                />
+                <div className="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.6663 5L7.49967 14.1667L3.33301 10"
+                      stroke="#10B981"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
                 <h2>
                   {Language.language === "en"
                     ? "Successful operation"
@@ -160,21 +169,9 @@ const FavoriteButton: React.FC<IProps> = ({ product, className, type }) => {
         >
           <LoginModel>
             {type === "Cart" ? (
-              <Image
-                src="/Icons/heart.svg"
-                alt="heart"
-                width={20}
-                height={20}
-                className="w-5 h-5"
-              />
+              <HeartIcon className="w-5 h-5" />
             ) : (
-              <Image
-                src="/Icons/heart-gray.svg"
-                alt="heart"
-                width={20}
-                height={20}
-                className="w-5 h-5 filter invert brightness-50"
-              />
+              <HeartIcon className="w-5 h-5 text-gray-500" />
             )}
           </LoginModel>
         </Button>
@@ -186,29 +183,15 @@ const FavoriteButton: React.FC<IProps> = ({ product, className, type }) => {
           onClick={handleFavorite}
         >
           {type === "Cart" ? (
-            <Image
-              src={isFavorite ? "/Icons/heart-fill.svg" : "/Icons/heart.svg"}
-              alt={isFavorite ? "favorite" : "heart"}
-              width={20}
-              height={20}
-              className="w-5 h-5"
-              priority={true}
-            />
+            isFavorite ? (
+              <HeartFilledIcon className="w-5 h-5 text-red-500" />
+            ) : (
+              <HeartIcon className="w-5 h-5" />
+            )
+          ) : isFavorite ? (
+            <HeartFilledIcon className="w-5 h-5 text-red-500" />
           ) : (
-            <Image
-              src={
-                isFavorite ? "/Icons/heart-fill.svg" : "/Icons/heart-gray.svg"
-              }
-              alt={isFavorite ? "favorite" : "heart"}
-              width={20}
-              height={20}
-              className={`w-5 h-5 ${
-                isFavorite
-                  ? ""
-                  : "filter brightness-75 dark:!invert dark:!brightness-75"
-              }`}
-              priority={true}
-            />
+            <HeartIcon className="w-5 h-5 text-gray700 dark:text-gray-100" />
           )}
         </Button>
       )}
