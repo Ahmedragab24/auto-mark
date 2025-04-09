@@ -38,6 +38,7 @@ const translations: Record<string, Record<string, string>> = {
     terms: "الشروط والاحكام",
     privacy: "سياسة الخصوصية",
     contact: "اتصل بنا",
+    "download-app": "تحميل التطبيق",
   },
   en: {
     home: "Home",
@@ -69,6 +70,7 @@ const translations: Record<string, Record<string, string>> = {
     terms: "Terms & Conditions",
     privacy: "Privacy Policy",
     contact: "Contact Us",
+    "download-app": "Download App",
   },
 };
 

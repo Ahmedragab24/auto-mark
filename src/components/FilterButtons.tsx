@@ -103,7 +103,7 @@ const FilterButtons = ({ className }: IProps) => {
 
   return (
     <div
-      className={`flex flex-wrap justify-center md:justify-start gap-2 md:gap-4 ${className} ${
+      className={`flex flex-wrap justify-center md:justify-start gap-2 md:gap-4 mb-2 ${className} ${
         isLoading ? "!mb-4" : ""
       }`}
       role="group"

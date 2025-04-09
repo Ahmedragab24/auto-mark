@@ -1336,4 +1336,9 @@ export const FooterPoliciesLinks = [
     label_ar: "تواصل معنا",
     label_en: "Contact Us",
   },
+  {
+    href: "/download-app",
+    label_ar: "حمل التطبيق",
+    label_en: "Download App",
+  },
 ];

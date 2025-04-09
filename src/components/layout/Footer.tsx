@@ -216,7 +216,7 @@ export function Footer() {
               }}
             >
               <Image
-                src="/Images/Group phones.png"
+                src="/Images/iPhone 15 Pro.png"
                 alt="تطبيق اوتو مارك"
                 fill
                 className="object-contain"

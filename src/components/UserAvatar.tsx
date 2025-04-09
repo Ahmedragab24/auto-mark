@@ -122,6 +122,12 @@ const UserAvatar = () => {
             </DropdownMenuItem>
           </Link>
 
+          <Link href={"/download-app"}>
+            <DropdownMenuItem>
+              {Lang === "ar" ? "تحميل التطبيق" : "Download App"}
+            </DropdownMenuItem>
+          </Link>
+
           <DropdownMenuItem onClick={handleLogoutClick}>
             {Lang === "ar" ? "تسجيل الخروج" : "Logout"}
           </DropdownMenuItem>

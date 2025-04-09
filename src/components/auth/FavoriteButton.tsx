@@ -158,23 +158,25 @@ const FavoriteButton: React.FC<IProps> = ({ product, className, type }) => {
   return (
     <>
       {!token ? (
-        <Button
-          variant="secondary"
-          size="icon"
-          className={`rounded-full ${className}`}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <LoginModel>
+        <LoginModel>
+          <Button
+            variant="secondary"
+            size="icon"
+            className={`rounded-full ${className}`}
+            onClick={(e) => {
+              if (type === "Cart") {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }}
+          >
             {type === "Cart" ? (
               <HeartIcon className="w-5 h-5" />
             ) : (
-              <HeartIcon className="w-5 h-5 text-gray-500" />
+              <HeartIcon className="w-5 h-5 text-gray700 dark:text-gray-100" />
             )}
-          </LoginModel>
-        </Button>
+          </Button>
+        </LoginModel>
       ) : (
         <Button
           variant="secondary"
