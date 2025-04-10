@@ -96,29 +96,6 @@ const CategoriesItems = () => {
     dispatch(clearServicesSections());
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ImageCategory = (category: any): string => {
-    if (category.key === "car") {
-      return `/Images/سيارات.jpg`;
-    }
-    if (category.key === "scrap") {
-      return `/Images/سيارات حوادث.jpg`;
-    }
-    if (category.key === "services") {
-      return `/Images/خدمات.jpg`;
-    }
-    if (category.key === "showroom") {
-      return `/Images/معارض.jpg`;
-    }
-    if (category.key === "spare_parts") {
-      return `/Images/قطع غيار.jpg`;
-    }
-    if (category.key === "car_numbers") {
-      return `/Images/لوحات.jpg`;
-    }
-    return `/Images/سيارات/1.jpg`; // Default image
-  };
-
   if (!isClient) return null;
 
   return (
@@ -136,14 +113,17 @@ const CategoriesItems = () => {
           <div className="w-full h-44 group relative bg-secondary rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 aspect-[4/3]">
             <div className="bg-gradient-to-t from-black/60 to-black/0" />
             <Image
-              src={ImageCategory(category)}
-              alt={category.name_en}
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}${category.image}`}
+              alt={language === "ar" ? category.name_ar : category.name_en}
               width={700}
-              height={500}
-              className="absolute bottom-0 z-10 object-cover !object-right w-full h-auto transition-transform duration-300 left-0 group-hover:scale-105 brightness-75 group-hover:brightness-100"
+              height={700}
+              quality={100}
+              unoptimized
+              className="absolute bottom-0 z-10 object-cover w-40 lg:w-52 h-auto transition-transform duration-300 left-4 group-hover:scale-105"
             />
+
             <div className="absolute top-0 right-0 z-20 p-6">
-              <h3 className="text-xl text-white font-semibold tracking-wide drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+              <h3 className="text-xl font-semibold tracking-wide">
                 {language === "ar" ? category.name_ar : category.name_en}
               </h3>
             </div>

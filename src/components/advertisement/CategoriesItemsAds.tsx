@@ -67,8 +67,10 @@ const CategoriesItemsAds = () => {
                 src={`${process.env.NEXT_PUBLIC_BASE_URL}${category.image}`}
                 alt={language === "ar" ? category.name_ar : category.name_en}
                 width={700}
-                height={500}
-                className="absolute bottom-0 z-10 object-cover w-44 h-auto transition-transform duration-300 left-4 group-hover:scale-105"
+                height={700}
+                quality={100}
+                unoptimized
+                className="absolute bottom-0 z-10 object-cover w-40 lg:w-52 h-auto transition-transform duration-300 left-4 group-hover:scale-105"
               />
               <div className="absolute top-0 right-0 z-20 p-6">
                 <h3 className="text-xl font-semibold tracking-wide">
