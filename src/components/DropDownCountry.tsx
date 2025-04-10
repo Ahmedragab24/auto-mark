@@ -63,7 +63,6 @@ const DropDownCountry = ({ className }: IProps) => {
             }}
           >
             <div className="flex items-center gap-2">
-              <h6>{Language === "en" ? item.name_en : item.name_ar}</h6>
               <Image
                 src={item.image || "/default-image.png"}
                 alt={item.name_en}
@@ -72,6 +71,7 @@ const DropDownCountry = ({ className }: IProps) => {
                 className="w-4 h-4 rounded-sm"
                 loading="lazy"
               />
+              <h6>{Language === "en" ? item.name_en : item.name_ar}</h6>
             </div>
           </DropdownMenuItem>
         ))}

@@ -411,11 +411,16 @@ const ShortViewSection = ({ Content }: IProps) => {
                   title_en={sectionTitle.en}
                   title_ar={sectionTitle.ar}
                 />
+                <hr
+                  className={`flex-grow h-1 rounded-full bg-primary max-w-[50px] md:max-w-[100px] mx-2 mb-2 ${
+                    language === "ar" ? "ml-auto" : "mr-auto"
+                  }`}
+                />
 
                 {products.length > 3 && (
                   <div
                     onClick={handlerMoreProducts}
-                    className="flex items-center gap-2 text-sm text-gray-500 duration-300 cursor-pointer md:text-bodyL hover:text-foreground group"
+                    className="flex items-center gap-2 text-sm text-gray-500 mb-2 duration-300 cursor-pointer md:text-bodyL hover:text-foreground group"
                   >
                     {language === "en" ? "Show more" : "المزيد"}
                     {language === "en" ? (

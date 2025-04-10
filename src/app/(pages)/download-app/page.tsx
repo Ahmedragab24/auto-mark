@@ -11,8 +11,10 @@ export default function AppDownloadSection() {
   const isRTL = lang === "ar";
 
   return (
-    <div className="w-full container mx-auto mt-12 sm:mt-16 md:mt-24 lg:mt-32 py-6 sm:py-8 md:py-12 px-3 sm:px-4">
-      <Breadcrumbs />
+    <div className="w-full container mx-auto mt-32 py-12 px-4">
+      <div className="mb-8">
+        <Breadcrumbs />
+      </div>
       {/* Main heading */}
       <h2
         className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 md:mb-8 ${
@@ -32,7 +34,7 @@ export default function AppDownloadSection() {
           }}
         >
           {/* Background image */}
-          <div className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[350px] sm:max-w-[450px] md:max-w-[550px] aspect-square opacity-5">
+          <div className="absolute top-1/2 left-[28%] transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[250px] sm:max-w-[450px] md:max-w-[550px] aspect-square opacity-5">
             <Image
               src="/Images/saxaa.png"
               alt="Google Play Background"
@@ -63,7 +65,7 @@ export default function AppDownloadSection() {
           </div>
 
           {/* App store button and phone image */}
-          <div className="relative z-10 w-full flex flex-col sm:flex-row justify-between items-center">
+          <div className="relative z-10 w-full flex  justify-between items-center">
             {/* Download button */}
             <div className="flex flex-col sm:mt-[-3rem] md:mt-[-5rem] mb-4 sm:mb-0 z-20">
               <Link
@@ -88,7 +90,7 @@ export default function AppDownloadSection() {
             </div>
 
             {/* Phone image */}
-            <div className="relative w-[150px] sm:w-[200px] md:w-[250px] lg:w-[300px] h-[200px] sm:h-[300px] md:h-[400px] lg:h-[450px] transform rotate-[10deg] mt-[-2rem] sm:mt-[-8rem] md:mt-[-12rem]">
+            <div className="relative w-[150px] sm:w-[200px] md:w-[250px] lg:w-[300px] h-[200px] sm:h-[300px] md:h-[400px] lg:h-[450px] transform rotate-[10deg] mt-[-5rem] sm:mt-[-8rem] md:mt-[-12rem]">
               <Image
                 src="/Images/iPhone 17.png"
                 alt="Android App Screenshot"
@@ -110,7 +112,7 @@ export default function AppDownloadSection() {
           }}
         >
           {/* Background image */}
-          <div className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[350px] sm:max-w-[450px] md:max-w-[550px] aspect-square opacity-20">
+          <div className="absolute top-1/2 left-[28%] transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[250px] sm:max-w-[450px] md:max-w-[550px] aspect-square opacity-20">
             <Image
               src="/Images/saxaa.png"
               alt="Apple Store Background"
@@ -141,7 +143,7 @@ export default function AppDownloadSection() {
           </div>
 
           {/* App store button and phone image */}
-          <div className="relative z-10 w-full flex flex-col sm:flex-row justify-between items-center">
+          <div className="relative z-10 w-full flex justify-between items-center">
             {/* Download button */}
             <div className="flex flex-col sm:mt-[-3rem] md:mt-[-5rem] mb-4 sm:mb-0 z-20">
               <Link
@@ -168,7 +170,7 @@ export default function AppDownloadSection() {
             </div>
 
             {/* Phone image */}
-            <div className="relative w-[150px] sm:w-[200px] md:w-[250px] lg:w-[300px] h-[200px] sm:h-[300px] md:h-[400px] lg:h-[450px] transform rotate-[10deg] mt-[-2rem] sm:mt-[-8rem] md:mt-[-12rem]">
+            <div className="relative w-[150px] sm:w-[200px] md:w-[250px] lg:w-[300px] h-[200px] sm:h-[300px] md:h-[400px] lg:h-[450px] transform rotate-[10deg] mt-[-5rem] sm:mt-[-8rem] md:mt-[-12rem]">
               <Image
                 src="/Images/iPhone 17.png"
                 alt="iPhone App Screenshot"

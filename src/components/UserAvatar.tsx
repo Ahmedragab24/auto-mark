@@ -7,6 +7,7 @@ import type { RootState } from "@/store/store";
 import { useLogoutMutation } from "@/store/apis/Auth/Auth";
 import { clearUserData } from "@/store/features/userData";
 import { toast } from "@/hooks/use-toast";
+import { User, Store, Heart, HelpCircle, Download, LogOut } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ const UserAvatar = () => {
   const handleLogoutConfirm = async () => {
     try {
       if (UserData.user && UserData.user?.login_type === "google") {
+        await logoutUser(UserData.token).unwrap();
         await logout();
       } else {
         await logoutUser(UserData.token).unwrap();
@@ -95,41 +97,50 @@ const UserAvatar = () => {
             </span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36 py-4">
+        <DropdownMenuContent align="end" className="w-48 py-2">
           {UserData?.token && UserData?.user?.type === "showroom" && (
             <Link href={"/showroomPage"}>
-              <DropdownMenuItem>
-                {Lang === "ar" ? "صفحة المعرض" : "Showroom Page"}
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Store className="h-4 w-4" />
+                <span>{Lang === "ar" ? "صفحة المعرض" : "Showroom Page"}</span>
               </DropdownMenuItem>
             </Link>
           )}
 
           <Link href={"/user"}>
-            <DropdownMenuItem>
-              {Lang === "ar" ? "الملف الشخصي" : "Profile"}
+            <DropdownMenuItem className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <span>{Lang === "ar" ? "الملف الشخصي" : "Profile"}</span>
             </DropdownMenuItem>
           </Link>
 
           <Link href={"/favorites"}>
-            <DropdownMenuItem>
-              {Lang === "ar" ? "المفضلة" : "Favorites"}
+            <DropdownMenuItem className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span>{Lang === "ar" ? "المفضلة" : "Favorites"}</span>
             </DropdownMenuItem>
           </Link>
 
           <Link href={"/SupportCenter"}>
-            <DropdownMenuItem>
-              {Lang === "ar" ? "مركز الدعم" : "Support Center"}
+            <DropdownMenuItem className="flex items-center gap-2">
+              <HelpCircle className="h-4 w-4" />
+              <span>{Lang === "ar" ? "مركز الدعم" : "Support Center"}</span>
             </DropdownMenuItem>
           </Link>
 
           <Link href={"/download-app"}>
-            <DropdownMenuItem>
-              {Lang === "ar" ? "تحميل التطبيق" : "Download App"}
+            <DropdownMenuItem className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              <span>{Lang === "ar" ? "تحميل التطبيق" : "Download App"}</span>
             </DropdownMenuItem>
           </Link>
 
-          <DropdownMenuItem onClick={handleLogoutClick}>
-            {Lang === "ar" ? "تسجيل الخروج" : "Logout"}
+          <DropdownMenuItem
+            onClick={handleLogoutClick}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>{Lang === "ar" ? "تسجيل الخروج" : "Logout"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

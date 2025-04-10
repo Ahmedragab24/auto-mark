@@ -84,11 +84,11 @@ body {
   }
 
   .section {
-    @apply mx-auto my-24;
+    @apply mx-auto my-20;
   }
 
   .section-title {
-    @apply text-sm py-6 md:text-lg xl:text-2xl font-bold;
+    @apply text-sm mb-3 md:text-lg xl:text-2xl font-bold;
   }
 
   .account-container {

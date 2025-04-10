@@ -65,7 +65,7 @@ export default function LoginForm({ setTypeModel, setIsOpen }: LoginFormProps) {
         dispatch(setPassword({ password: hashedPassword }));
         setIsOpen(false);
         setTimeout(() => {
-          window.location.pathname = "/";
+          window.location.reload();
         }, 2000);
         toast({
           title:

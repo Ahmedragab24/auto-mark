@@ -57,65 +57,59 @@ const FavoriteButton: React.FC<IProps> = ({ product, className, type }) => {
     }
   }, [favoritesData, product.id]);
 
-  const handleFavorite = useCallback(
-    async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-      e.preventDefault();
-      e.stopPropagation();
+  const handleFavorite = useCallback(async (): Promise<void> => {
+    if (!product.id) return;
 
-      if (!product.id) return;
-
-      if (isFavorite) {
-        setIsDialogOpen(true);
-      } else {
-        try {
-          await storeFavorite(product.id).unwrap();
-          setIsFavorite(true);
-          refetch();
-          toast({
-            variant: "default",
-            description: (
-              <div className="flex flex-col items-center justify-center gap-2">
-                <div className="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16.6663 5L7.49967 14.1667L3.33301 10"
-                      stroke="#10B981"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <h2>
-                  {Language.language === "en"
-                    ? "Successful operation"
-                    : "عملية ناجحة"}
-                </h2>
-                <p>
-                  {Language.language === "en"
-                    ? "Product added to favorites"
-                    : "تم اضافة المنتج للمفضلة"}
-                </p>
+    if (isFavorite) {
+      setIsDialogOpen(true);
+    } else {
+      try {
+        await storeFavorite(product.id).unwrap();
+        setIsFavorite(true);
+        refetch();
+        toast({
+          variant: "default",
+          description: (
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M16.6663 5L7.49967 14.1667L3.33301 10"
+                    stroke="#10B981"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </div>
-            ),
-          });
-        } catch (err: unknown) {
-          const error = err as ErrorType;
-          toast({
-            variant: "destructive",
-            description: error?.data?.message || "حدث خطأ",
-          });
-        }
+              <h2>
+                {Language.language === "en"
+                  ? "Successful operation"
+                  : "عملية ناجحة"}
+              </h2>
+              <p>
+                {Language.language === "en"
+                  ? "Product added to favorites"
+                  : "تم اضافة المنتج للمفضلة"}
+              </p>
+            </div>
+          ),
+        });
+      } catch (err: unknown) {
+        const error = err as ErrorType;
+        toast({
+          variant: "destructive",
+          description: error?.data?.message || "حدث خطأ",
+        });
       }
-    },
-    [isFavorite, product.id, storeFavorite, refetch, Language.language]
-  );
+    }
+  }, [isFavorite, product.id, storeFavorite, refetch, Language.language]);
 
   const confirmRemove = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -163,12 +157,6 @@ const FavoriteButton: React.FC<IProps> = ({ product, className, type }) => {
             variant="secondary"
             size="icon"
             className={`rounded-full ${className}`}
-            onClick={(e) => {
-              if (type === "Cart") {
-                e.preventDefault();
-                e.stopPropagation();
-              }
-            }}
           >
             {type === "Cart" ? (
               <HeartIcon className="w-5 h-5" />

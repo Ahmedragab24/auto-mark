@@ -102,7 +102,11 @@ export const AuthApi = createApi({
       query: (token) => ({
         url: "api/delete-account",
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          contentType: "application/json",
+          Accept: "application/json",
+        },
       }),
     }),
   }),
