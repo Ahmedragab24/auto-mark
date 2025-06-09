@@ -39,6 +39,7 @@ import { setCountry } from "@/store/features/country";
 import { clearFilters } from "@/store/features/filter";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { RootState } from "@/store/store";
+import { CategoryCarsType } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -53,6 +54,8 @@ const CategoriesItems = () => {
   useEffect(() => {
     setIsClient(true);
   }, [language]);
+
+  console.log(categories);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlerCategory = (category: any) => {
@@ -96,6 +99,19 @@ const CategoriesItems = () => {
     dispatch(clearServicesSections());
   };
 
+  const getCategoryImage = (key: string): string => {
+    const images: Record<string, string> = {
+      car: "/Images/car.png",
+      scrap: "/Images/scrap.png",
+      services: "/Images/services.png",
+      showroom: "/Images/showroom.png",
+      spare_parts: "/Images/spare_parts.png",
+      car_numbers: "/Images/car_numbers.png",
+    };
+
+    return images[key] || "/Images/default.jpg";
+  };
+
   if (!isClient) return null;
 
   return (
@@ -103,27 +119,30 @@ const CategoriesItems = () => {
       className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 pb-10"
       dir={language === "ar" ? "rtl" : "ltr"}
     >
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {categories.map((category: any) => (
+      {categories.map((category: CategoryCarsType) => (
         <Link
           key={category.id}
           href={"/categories/" + category.key}
           onClick={() => handlerCategory(category)}
         >
-          <div className="w-full h-44 group relative bg-secondary rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 aspect-[4/3]">
+          <div className="w-full h-44 group relative bg-secondary rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition duration-300 aspect-[4/3]">
             <div className="bg-gradient-to-t from-black/60 to-black/0" />
             <Image
-              src={`${process.env.NEXT_PUBLIC_BASE_URL}${category.image}`}
-              alt={language === "ar" ? category.name_ar : category.name_en}
-              width={700}
-              height={700}
+              src={getCategoryImage(category.key)}
+              alt={
+                language === "ar"
+                  ? category?.name_ar ?? ""
+                  : category?.name_en ?? ""
+              }
+              width={200}
+              height={100}
               quality={100}
               unoptimized
-              className="absolute bottom-0 z-10 object-cover w-40 lg:w-52 h-auto transition-transform duration-300 left-4 group-hover:scale-105"
+              className="absolute bottom-0 z-10 object-cover transition-transform duration-300 left-4 group-hover:scale-105"
             />
 
-            <div className="absolute top-0 right-0 z-20 p-6">
-              <h3 className="text-xl font-semibold tracking-wide">
+            <div className="absolute top-0 right-0 z-20 p-8">
+              <h3 className="text-2xl font-bold tracking-wide">
                 {language === "ar" ? category.name_ar : category.name_en}
               </h3>
             </div>

@@ -341,6 +341,7 @@ export interface BrandType {
   arrange?: number;
   created_at?: string;
   updated_at?: string;
+  model_brands?: ModelsType[];
 }
 
 export interface ModelsType {

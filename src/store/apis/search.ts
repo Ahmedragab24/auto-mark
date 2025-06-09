@@ -9,7 +9,7 @@ export const SearchApi = createApi({
   keepUnusedDataFor: 0,
 
   endpoints: (builder) => ({
-    //   Get Categories
+    //   Get Product By Keywords
     getSearchByKeywords: builder.query({
       query: ({
         keyword,
@@ -29,7 +29,21 @@ export const SearchApi = createApi({
         `api/search-product?keyword=${keyword}&page=${page}&country_id=${countryID}&lang=${lang}&more_type=${more_type}&category_id=${categoryID}`,
       providesTags: ["SearchByKeywords"],
     }),
+
+    //   Get Product By Brand
+    getSearchByBrand: builder.query({
+      query: ({
+        keyword,
+        categoryID,
+      }: {
+        keyword: string;
+        categoryID: number;
+      }) =>
+        `api/search-text/products?keyword=${keyword}&category_id=${categoryID}`,
+      providesTags: ["SearchByKeywords"],
+    }),
   }),
 });
 
-export const { useGetSearchByKeywordsQuery } = SearchApi;
+export const { useGetSearchByKeywordsQuery, useGetSearchByBrandQuery } =
+  SearchApi;

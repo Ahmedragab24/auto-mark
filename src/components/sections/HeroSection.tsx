@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 export function HeroSection() {
   return (
-    <div className=" relative flex flex-col gap-8 px-8 md:pt-20 py-8 justify-between w-full overflow-hidden h-auto md:h-[540px] rounded-2xl mt-44">
+    <div className=" relative flex flex-col gap-8 px-8 md:pt-20 py-8 justify-between w-full min-w-full min-h-full overflow-hidden h-auto md:h-[540px] rounded-2xl mt-44">
       {/* Background Image */}
       <HeroSectionImage />
 

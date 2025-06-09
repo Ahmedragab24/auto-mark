@@ -92,45 +92,66 @@ const ShortViewSection = ({ Content }: IProps) => {
         setSectionTitle({ ar: "السيارات المختارة", en: "Most Viewed Cars" });
         break;
       case "scrap":
-        setProducts(
-          data.data.categories_with_products_tow?.[0]?.products || []
+        const selectedCategory = data?.data?.categories_with_products_tow.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (item: any) => item.id === 8
         );
+
+        setProducts(selectedCategory?.products || []);
         setSectionTitle({ ar: "سيارات سكراب وحوادث", en: "Scrap & Accidents" });
         break;
       case "services":
-        setProducts(
-          data.data.categories_with_products_tow?.[1]?.products || []
+        const services = data?.data?.categories_with_products_tow.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (item: any) => item.id === 7
         );
+
+        setProducts(services?.products || []);
         setSectionTitle({ ar: "الخدمات", en: "Services" });
         break;
       case "SpareParts":
-        setProducts(
-          data.data.categories_with_products_tow?.[2]?.products || []
+        const SpareParts = data?.data?.categories_with_products_tow.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (item: any) => item.id === 5
         );
+
+        setProducts(SpareParts?.products || []);
         setSectionTitle({ ar: "قطع غيار", en: "Spare Parts" });
         break;
       case "carsNumbers":
-        setProducts(
-          data.data.categories_with_products_tow?.[3]?.products || []
+        const carsNumbers = data?.data?.categories_with_products_tow.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (item: any) => item.id === 6
         );
+
+        setProducts(carsNumbers?.products || []);
         setSectionTitle({ ar: "أرقام السيارات", en: "Car Numbers" });
         break;
       case "bikes":
-        setProducts(
-          data.data.categories_with_products_tow?.[4]?.products || []
+        const bikes = data?.data?.categories_with_products_tow.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (item: any) => item.id === 2
         );
+
+        setProducts(bikes?.products || []);
         setSectionTitle({ ar: "دراجات", en: "Bikes" });
         break;
       case "trucks":
-        setProducts(
-          data.data.categories_with_products_tow?.[5]?.products || []
+        const trucks = data?.data?.categories_with_products_tow.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (item: any) => item.id === 3
         );
+
+        setProducts(trucks?.products || []);
         setSectionTitle({ ar: "شاحنات", en: "Trucks" });
         break;
       case "boots":
-        setProducts(
-          data.data.categories_with_products_tow?.[6]?.products || []
+        const boots = data?.data?.categories_with_products_tow.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (item: any) => item.id === 4
         );
+
+        setProducts(boots?.products || []);
         setSectionTitle({ ar: "قوارب", en: "Boats" });
         break;
       default:

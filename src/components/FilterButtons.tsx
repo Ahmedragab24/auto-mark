@@ -127,7 +127,7 @@ const FilterButtons = ({ className }: IProps) => {
           <Button
             key={item.id}
             variant={item.id === id ? "default" : "secondary"}
-            className="md:px-8"
+            className="px-3 md:px-8 text-sm md:text-md"
             onClick={() => handlerBtn(item)}
             aria-pressed={item.id === id}
           >

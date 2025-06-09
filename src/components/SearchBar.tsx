@@ -1,19 +1,20 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import type React from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Input } from "./ui/input";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { useGetSearchByKeywordsQuery } from "@/store/apis/search";
+import { useGetSearchByBrandQuery } from "@/store/apis/search";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import type { RootState } from "@/store/store";
 import { Card, CardContent } from "./ui/card";
-import Image from "next/image";
 import { Button } from "./ui/button";
 import type {
   AllProductsType,
+  BrandType,
   CategoryCarsType,
   countryType,
-  ProductType,
+  ModelsType,
 } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
@@ -32,10 +33,24 @@ import { useCategoriesData } from "@/hooks/use-categoriesData";
 import { setCategories } from "@/store/features/categories";
 import { AllProductsTypes } from "@/constants";
 import { setAllProductsType } from "@/store/features/AllProductsType";
+import { setBrand } from "@/store/features/attributes/brand";
+import { setModel } from "@/store/features/attributes/model";
+import { setCurrentPage } from "@/store/features/currentPage";
+import { setSingleFilter } from "@/store/features/filter";
 
 interface IProps {
   className?: string;
   inOpenChange?: (open: boolean) => void;
+}
+
+interface SearchResultItem {
+  brandId: number;
+  brandName_en: string;
+  brandName_ar: string;
+  brandImage: string;
+  modelID: number;
+  modelName_en: string;
+  modelName_ar: string;
 }
 
 const SearchBar = ({ className, inOpenChange }: IProps) => {
@@ -43,39 +58,80 @@ const SearchBar = ({ className, inOpenChange }: IProps) => {
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
   const { Categories, Country, Language, AllProductsType } = useAppSelector(
     (state: RootState) => state
-  );
-  const { data, isLoading } = useGetSearchByKeywordsQuery(
-    {
-      categoryID: Categories.Categories.id,
-      countryID: Country.Country.id,
-      keyword: debouncedSearchText,
-      page: 1,
-      lang: Language.language,
-      more_type: AllProductsType.allProductsType,
-    },
-    { skip: !debouncedSearchText }
   );
   const { Countries } = useCountriesData();
   const { Category } = useCategoriesData();
 
-  const products = data?.data?.products?.data || [];
   const searchRef = useRef<HTMLDivElement>(null);
-  const [isClient, setIsClient] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Memoize search parameters
+  const searchParams = useMemo(
+    () => ({
+      categoryID: Categories.Categories.id,
+      keyword: debouncedSearchText,
+    }),
+    [Categories.Categories.id, debouncedSearchText]
+  );
+
+  const { data, isLoading, error } = useGetSearchByBrandQuery(searchParams, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  // Process and flatten search results
+  const searchResults = useMemo((): SearchResultItem[] => {
+    if (!data?.data?.brands?.length) {
+      return [];
+    }
+
+    const results: SearchResultItem[] = [];
+
+    data.data.brands.forEach((brand: BrandType) => {
+      if (brand.model_brands?.length) {
+        brand.model_brands.forEach((model: ModelsType) => {
+          results.push({
+            brandId: brand.id,
+            brandName_en: brand.name_en,
+            brandName_ar: brand.name_ar,
+            brandImage: brand.image || "",
+            modelID: model.id,
+            modelName_en: model.name_en,
+            modelName_ar: model.name_ar,
+          });
+        });
+      }
+    });
+
+    return results;
+  }, [data]);
+
+  // Set client-side flag
   useEffect(() => {
     setIsClient(true);
-  }, [Language.language]);
+  }, []);
 
+  // Debounce search input
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
       setDebouncedSearchText(searchText);
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [searchText]);
 
+  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -83,72 +139,202 @@ const SearchBar = ({ className, inOpenChange }: IProps) => {
         !searchRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        inOpenChange?.(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isOpen, inOpenChange]);
 
+  // Open dropdown when there's search text
   useEffect(() => {
-    if (debouncedSearchText) {
+    if (debouncedSearchText && debouncedSearchText.length >= 1) {
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  }, [debouncedSearchText]);
+
+  // Memoized event handlers
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchText(e.target.value);
+    },
+    []
+  );
+
+  const handleSearchFocus = useCallback(() => {
+    if (debouncedSearchText && debouncedSearchText.length >= 2) {
       setIsOpen(true);
     }
   }, [debouncedSearchText]);
 
-  const handleCountryChange = (value: string) => {
-    const selectedCountry = Countries.find(
-      (Country: countryType) => Country.name_en === value
-    );
-    if (selectedCountry) {
-      dispatch(setCountry(selectedCountry));
+  const handleSearchClick = useCallback(() => {
+    if (searchText.trim()) {
+      // Trigger search action
+      console.log("Search clicked:", searchText);
     }
-  };
+  }, [searchText]);
 
-  const handleCategoryChange = (value: string) => {
-    const selectedCategory = Category.find(
-      (Category: CategoryCarsType) => Category.name === value
-    );
-    if (selectedCategory) {
-      dispatch(setCategories(selectedCategory));
-    }
-  };
-
-  const handleAllProductsChange = (value: string) => {
-    const selectedAllProducts = AllProductsTypes.find(
-      (Category) => Category.value === value
-    );
-    if (selectedAllProducts) {
-      dispatch(
-        setAllProductsType(selectedAllProducts.value as AllProductsType)
+  const handleCountryChange = useCallback(
+    (value: string) => {
+      const selectedCountry = Countries?.find(
+        (country: countryType) => country.name_en === value
       );
-    }
-  };
+      if (selectedCountry) {
+        dispatch(setCountry(selectedCountry));
+      }
+    },
+    [Countries, dispatch]
+  );
 
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      const selectedCategory = Category?.find(
+        (category: CategoryCarsType) => category.name === value
+      );
+      if (selectedCategory) {
+        dispatch(setCategories(selectedCategory));
+      }
+    },
+    [Category, dispatch]
+  );
+
+  const handleAllProductsChange = useCallback(
+    (value: string) => {
+      const selectedAllProducts = AllProductsTypes.find(
+        (category) => category.value === value
+      );
+      if (selectedAllProducts) {
+        dispatch(
+          setAllProductsType(selectedAllProducts.value as AllProductsType)
+        );
+      }
+    },
+    [dispatch]
+  );
+
+  const handleResultClick = useCallback(
+    (result: SearchResultItem) => {
+      setIsOpen(false);
+      setSearchText("");
+      setDebouncedSearchText("");
+      inOpenChange?.(false);
+      dispatch(
+        setBrand({
+          id: result.brandId,
+          name_en: result.brandName_en,
+          name_ar: result.brandName_ar,
+          image: result.brandImage,
+          category_id: 1,
+        })
+      );
+      dispatch(
+        setModel({
+          id: result.modelID,
+          name_en: result.modelName_en,
+          name_ar: result.modelName_ar,
+          brand_id: result.brandId,
+        })
+      );
+
+      dispatch(setCurrentPage(1));
+      dispatch(
+        setSingleFilter({
+          category: "brand",
+          option: {
+            id: result.brandId.toString(),
+            name_ar: result.brandName_ar,
+            name_en: result.brandName_en,
+            name: result.brandName_en,
+            value: result.brandId.toString(),
+          },
+        })
+      );
+      dispatch(
+        setSingleFilter({
+          category: "model",
+          option: {
+            id: result.modelID.toString(),
+            name_ar: result.modelName_ar,
+            name_en: result.modelName_en,
+            name: result.modelName_en,
+            value: result.modelID.toString(),
+          },
+        })
+      );
+    },
+    [inOpenChange, dispatch]
+  );
+
+  // Memoized computed values
+  const placeholderText = useMemo(() => {
+    return Language.language === "en"
+      ? "Search for cars and more..."
+      : "ابحث عن السيارات وأكثر...";
+  }, [Language.language]);
+
+  const inputStyles = useMemo(() => {
+    const isRTL = Language.language === "ar";
+    return `w-full !text-bodyS md:!text-sm border-gray-300 rounded-lg h-14 ${
+      isRTL ? "text-right pr-14" : "text-left pl-14"
+    }`;
+  }, [Language.language]);
+
+  const countryOptions = useMemo(() => {
+    if (!Countries) return [];
+
+    return Countries.map((country: countryType) => ({
+      id: country.id,
+      name_ar: country.name_ar,
+      name_en: country.name_en,
+      value: Language.language === "ar" ? country.name_ar : country.name_en,
+    }));
+  }, [Countries, Language.language]);
+
+  const categoryOptions = useMemo(() => {
+    if (!Category) return [];
+
+    return Category.map((category: CategoryCarsType) => ({
+      name: category.name,
+      value: category.name,
+    }));
+  }, [Category]);
+
+  const allProductsOptions = useMemo(() => {
+    return AllProductsTypes.map((item) => ({
+      name: Language.language === "ar" ? item.name_ar : item.name_en,
+      value: item.value,
+    }));
+  }, [Language.language]);
+
+  // Don't render on server
   if (!isClient) return null;
 
   return (
-    <div className={`relative ${className}`} ref={searchRef}>
+    <div className={`relative ${className || ""}`} ref={searchRef}>
       <Input
         type="search"
-        placeholder={
-          Language.language === "en"
-            ? "Search for cars and more..."
-            : "ابحث عن السيارات وأكثر..."
-        }
-        className={`w-full !text-bodyS md:!text-sm border-gray-300 rounded-lg h-14 ${
-          Language.language === "en" ? "text-left pl-14" : "text-right pr-14"
-        }`}
+        placeholder={placeholderText}
+        className={inputStyles}
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        onFocus={() => setIsOpen(true)}
+        onChange={handleSearchChange}
+        onFocus={handleSearchFocus}
+        aria-label={placeholderText}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
       />
 
       <Button
+        type="button"
         className="absolute top-0 left-0 px-4 rounded-l-lg h-14"
-        onClick={() => setIsOpen(false)}
+        onClick={handleSearchClick}
+        aria-label="Search"
       >
         <Search className="w-5 h-5" />
       </Button>
@@ -156,8 +342,9 @@ const SearchBar = ({ className, inOpenChange }: IProps) => {
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            variant={"link"}
-            className="absolute top-0 right-0 px-4 rounded-r-lg h-14 duration-200 "
+            variant="link"
+            className="absolute top-0 right-0 px-4 rounded-r-lg h-14 duration-200"
+            aria-label="Open filters"
           >
             <SlidersHorizontal className="w-5 h-5 text-primary" />
           </Button>
@@ -195,19 +382,7 @@ const SearchBar = ({ className, inOpenChange }: IProps) => {
                   : Country.Country.name_en
               }
               onValueChange={handleCountryChange}
-              options={
-                Countries
-                  ? Countries.map((Country: countryType) => ({
-                      id: Country.id,
-                      name_ar: Country.name_ar,
-                      name_en: Country.name_en,
-                      value:
-                        Language.language === "ar"
-                          ? Country.name_ar
-                          : Country.name_en,
-                    }))
-                  : []
-              }
+              options={countryOptions}
             />
 
             <SelectWrapper
@@ -215,10 +390,7 @@ const SearchBar = ({ className, inOpenChange }: IProps) => {
                 Language.language === "ar" ? "اختر النوع" : "Select the type"
               }
               value={Categories.Categories.name}
-              options={Category.map((category: CategoryCarsType) => ({
-                name: category.name,
-                value: category.name,
-              }))}
+              options={categoryOptions}
               onValueChange={handleCategoryChange}
             />
 
@@ -227,10 +399,7 @@ const SearchBar = ({ className, inOpenChange }: IProps) => {
                 Language.language === "ar" ? "اختر التصنيف" : "Select category"
               }
               value={AllProductsType.allProductsType}
-              options={AllProductsTypes.map((item) => ({
-                name: Language.language === "ar" ? item.name_ar : item.name_en,
-                value: item.value,
-              }))}
+              options={allProductsOptions}
               onValueChange={handleAllProductsChange}
             />
           </div>
@@ -241,60 +410,77 @@ const SearchBar = ({ className, inOpenChange }: IProps) => {
         <Card className="absolute z-50 w-full mt-2 overflow-hidden border-2 top-16 border-border">
           <CardContent className="p-0">
             {isLoading ? (
-              <p className="p-4 text-center">
-                {Language.language === "en"
-                  ? "Please Wait..."
-                  : "يرجى الانتظار..."}
-              </p>
-            ) : products.length > 0 ? (
+              <div className="p-4 text-center" role="status" aria-live="polite">
+                <p>
+                  {Language.language === "en"
+                    ? "Please Wait..."
+                    : "يرجى الانتظار..."}
+                </p>
+              </div>
+            ) : error ? (
+              <div className="p-4 text-center text-red-500" role="alert">
+                <p>
+                  {Language.language === "en"
+                    ? "Error loading results"
+                    : "خطأ في تحميل النتائج"}
+                </p>
+              </div>
+            ) : searchResults.length > 0 ? (
               <ScrollArea
                 className={`w-full max-h-[300px] ${
-                  products.length < 4 ? "h-fit" : "h-[50vh]"
+                  searchResults.length < 4 ? "h-fit" : "h-[50vh]"
                 }`}
                 dir={Language.language === "ar" ? "rtl" : "ltr"}
               >
-                <ul className="divide-y">
-                  {products.map((product: ProductType) => (
-                    <Link
-                      key={product.id}
-                      href={`/categories/${product.id}`}
-                      onClick={() => {
-                        setIsOpen(false);
-                        inOpenChange?.(false);
-                      }}
+                <ul className="divide-y" role="listbox">
+                  {searchResults.map((result) => (
+                    <li
+                      key={`${result.brandId}-${result.modelID}`}
+                      role="option"
+                      aria-selected="false"
                     >
-                      <li className="flex gap-2 items-center p-4 cursor-pointer hover:bg-secondary">
-                        <Image
-                          src={
-                            `${
-                              process.env.NEXT_PUBLIC_BASE_URL ||
-                              "/placeholder.svg" ||
-                              "/placeholder.svg"
-                            }${product.image}` || "/placeholder.png"
-                          }
-                          alt={product.name || "images"}
-                          width={50}
-                          height={50}
-                          className="object-cover rounded"
-                        />
-                        <div className="flex-grow mr-4">
-                          <h3 className="font-semibold">{product.name}</h3>
-                          <div className="flex items-center gap-1">
-                            <p className="text-sm text-gray-500">
-                              {product.price}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {product.country?.symbol}
-                            </p>
-                          </div>
+                      <Link
+                        href={`/categories/car`}
+                        onClick={() => handleResultClick(result)}
+                        className="flex gap-2 items-center p-4 cursor-pointer hover:bg-secondary transition-colors duration-200 focus:bg-secondary focus:outline-none"
+                      >
+                        {/* <div className="flex-shrink-0">
+                          <Image
+                            src={
+                              result.brandImage
+                                ? `${process.env.NEXT_PUBLIC_BASE_URL}${result.brandImage}`
+                                : "/placeholder.svg?height=50&width=50"
+                            }
+                            alt={`${result.brandName_en} logo`}
+                            width={50}
+                            height={50}
+                            className="object-cover rounded"
+                            loading="lazy"
+                          />
+                        </div> */}
+                        <div className="flex gap-2 mx-4 min-w-0 flex-1">
+                          <h3 className="font-semibold truncate">
+                            {Language.language === "en"
+                              ? result.brandName_en
+                              : result.brandName_ar}
+                          </h3>
+                          <h3 className="font-semibold truncate">
+                            {Language.language === "en"
+                              ? result.modelName_en
+                              : result.modelName_ar}
+                          </h3>
                         </div>
-                      </li>
-                    </Link>
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               </ScrollArea>
             ) : (
-              <p className="p-4 text-center">لا توجد نتائج</p>
+              <div className="p-4 text-center" role="status">
+                <p>
+                  {Language.language === "en" ? "No Results" : "لا يوجد نتائج"}
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>

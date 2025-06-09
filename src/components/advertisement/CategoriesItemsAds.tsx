@@ -19,6 +19,19 @@ const CategoriesItemsAds = () => {
     (category: MainCategoriesType) => category.key !== "showroom"
   );
 
+  const getCategoryImage = (key: string): string => {
+    const images: Record<string, string> = {
+      car: "/Images/car.png",
+      scrap: "/Images/scrap.png",
+      services: "/Images/services.png",
+      showroom: "/Images/showroom.png",
+      spare_parts: "/Images/spare_parts.png",
+      car_numbers: "/Images/car_numbers.png",
+    };
+
+    return images[key] || "/Images/default.jpg";
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const HandlerCategory = (category: any) => {
     dispatch(setCategories(category));
@@ -64,7 +77,7 @@ const CategoriesItemsAds = () => {
             <div className="w-full h-44 group relative bg-secondary rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 aspect-[4/3]">
               <div className="bg-gradient-to-t from-black/60 to-black/0" />
               <Image
-                src={`${process.env.NEXT_PUBLIC_BASE_URL}${category.image}`}
+                src={getCategoryImage(category.key)}
                 alt={language === "ar" ? category.name_ar : category.name_en}
                 width={700}
                 height={700}

@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button";
 import { price, year } from "@/constants";
 import dynamic from "next/dynamic";
 import { useCitiesData } from "@/hooks/use-citiesData";
-import type { BrandType, CategoryCarsType, cityType } from "@/types";
+import type { BrandType, cityType, ModelsType } from "@/types";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import type { RootState } from "@/store/store";
-import { setCategories } from "@/store/features/categories";
-import { useGetBrandsQuery } from "@/store/apis/attrbuite";
+import { useGetBrandsQuery, useGetModelsQuery } from "@/store/apis/attrbuite";
 import {
   clearYear,
   setYear,
@@ -24,8 +23,7 @@ import {
 } from "@/store/features/filter";
 import { useRouter } from "next/navigation";
 import { clearCity, setCity } from "@/store/features/city";
-import { useCategoriesData } from "@/hooks/use-categoriesData";
-import { clearModel } from "@/store/features/attributes/model";
+import { clearModel, setModel } from "@/store/features/attributes/model";
 import { clearBodyType } from "@/store/features/attributes/bodyType";
 import { clearFuel } from "@/store/features/attributes/fuelType";
 import { clearNumOfCylinders } from "@/store/features/attributes/numOfCylinders";
@@ -62,15 +60,20 @@ const SelectWrapper = dynamic(() => import("@/components/SelectWrapper"), {
 });
 
 const HeroFiltering: React.FC = () => {
-  const { Language, Categories } = useAppSelector((state: RootState) => state);
+  const { Language, Categories, Brand } = useAppSelector(
+    (state: RootState) => state
+  );
   const { Cities } = useCitiesData();
-  const { Category } = useCategoriesData();
   const { data: dataBrands } = useGetBrandsQuery({
     id: Categories.Categories.id,
+  });
+  const { data: dataModels } = useGetModelsQuery({
+    brand_id: Brand.id || 1,
   });
   const dispatch = useAppDispatch();
   const Router = useRouter();
   const Brands = dataBrands?.data?.brands || [];
+  const Models = dataModels?.data || [];
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -139,13 +142,16 @@ const HeroFiltering: React.FC = () => {
     }
   };
 
-  const handleCategoryChange = (value: string) => {
-    // Then set the selected category
-    const selectedCategory = Category?.find(
-      (category: CategoryCarsType) => category.name === value
+  const handleModelsChange = (value: string) => {
+    const selectedModel = Models?.find(
+      (model: ModelsType) => model.name_en === value || model.name_ar === value
     );
-    if (selectedCategory) {
-      dispatch(setCategories(selectedCategory));
+
+    if (selectedModel) {
+      dispatch(setModel(selectedModel));
+      dispatch(setSingleFilter({ category: "model", option: selectedModel }));
+    } else {
+      dispatch(clearBrand());
     }
   };
 
@@ -203,6 +209,32 @@ const HeroFiltering: React.FC = () => {
         >
           <SelectWrapper
             placeholder={
+              Language.language === "ar" ? "اختر الماركة" : "Select brand"
+            }
+            options={
+              Brands?.map((brand: BrandType) => ({
+                name:
+                  Language.language === "ar" ? brand.name_ar : brand.name_en,
+                value: brand.name_en,
+              })) || []
+            }
+            onValueChange={handleBrandChange}
+          />
+          <SelectWrapper
+            placeholder={
+              Language.language === "ar" ? "اختر الموديل" : "Select model"
+            }
+            options={
+              Models?.map((model: ModelsType) => ({
+                name:
+                  Language.language === "ar" ? model.name_ar : model.name_en,
+                value: model.name_en,
+              })) || []
+            }
+            onValueChange={handleModelsChange}
+          />
+          <SelectWrapper
+            placeholder={
               Language.language === "ar" ? "اختر المدينة" : "Select city"
             }
             onValueChange={handleCityChange}
@@ -215,31 +247,6 @@ const HeroFiltering: React.FC = () => {
                   }))
                 : []
             }
-          />
-          <SelectWrapper
-            placeholder={
-              Language.language === "ar" ? "اختر النوع" : "Select the type"
-            }
-            options={
-              Category?.map((category: CategoryCarsType) => ({
-                name: category.name,
-                value: category.name,
-              })) || []
-            }
-            onValueChange={handleCategoryChange}
-          />
-          <SelectWrapper
-            placeholder={
-              Language.language === "ar" ? "اختر الماركة" : "Select brand"
-            }
-            options={
-              Brands?.map((brand: BrandType) => ({
-                name:
-                  Language.language === "ar" ? brand.name_ar : brand.name_en,
-                value: brand.name_en,
-              })) || []
-            }
-            onValueChange={handleBrandChange}
           />
           <SelectWrapper
             placeholder={

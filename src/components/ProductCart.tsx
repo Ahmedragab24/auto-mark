@@ -4,7 +4,7 @@ import { useAppSelector } from "@/store/hooks";
 import type { RootState } from "@/store/store";
 import type { ProductType } from "@/types";
 import { formatPrice } from "@/utils/FormatPrice";
-import { CarFront, CircleGauge, MapPin } from "lucide-react";
+import { CarFront, CircleGauge, IdCard, MapPin } from "lucide-react";
 import type React from "react";
 
 interface ProductContentProps {
@@ -28,6 +28,13 @@ const ProductContent: React.FC<ProductContentProps> = ({ product }) => {
     return yearSpec?.value_en || "";
   };
 
+  const getCarNumber = () => {
+    const CarNumSpec = product.standard_specification?.find(
+      (spec) => spec.key === "plate_number"
+    );
+    return CarNumSpec?.value_en || "";
+  };
+
   return (
     <div
       className="flex flex-col gap-3 p-4"
@@ -49,25 +56,42 @@ const ProductContent: React.FC<ProductContentProps> = ({ product }) => {
 
       <h3 className="text-bodyL font-regular">{product.name}</h3>
 
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <MapPin size={16} />
-        {product.city?.name && <span>{product.city.name}</span>}
-      </div>
+      {product?.city?.name && (
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <MapPin size={16} />
+          {product.city?.name && <span>{product.city.name}</span>}
+        </div>
+      )}
 
-      {product.standard_specification &&
-        product.standard_specification.length > 0 && (
+      {product?.standard_specification &&
+        product?.standard_specification.length > 0 && (
           <div className="flex items-center gap-3 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <CircleGauge className="w-5 h-5" />
-              <span>
-                {getMileage()} {language === "en" ? "km" : "كم"}
-              </span>
-            </div>
-            <div className="w-[1px] h-8 bg-gray-500" />
-            <div className="flex items-center gap-2">
-              <CarFront className="w-5 h-5" />
-              <span>{getManufacturingYear()}</span>
-            </div>
+            {getMileage() && (
+              <div className="flex items-center gap-2">
+                <CircleGauge className="w-5 h-5" />
+                <span>
+                  {getMileage()} {language === "en" ? "km" : "كم"}
+                </span>
+              </div>
+            )}
+
+            {getMileage() && getManufacturingYear() && (
+              <div className="w-[1px] h-8 bg-gray-500" />
+            )}
+
+            {getManufacturingYear() && (
+              <div className="flex items-center gap-2">
+                <CarFront className="w-5 h-5" />
+                <span>{getManufacturingYear()}</span>
+              </div>
+            )}
+
+            {getCarNumber() && (
+              <div className="flex items-center gap-2">
+                <IdCard className="w-5 h-5" />
+                <span>{getCarNumber()}</span>
+              </div>
+            )}
           </div>
         )}
     </div>

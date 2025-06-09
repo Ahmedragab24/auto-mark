@@ -33,6 +33,7 @@ import { resetSorting } from "@/store/features/sortingData";
 import { clearServicesSections } from "@/store/features/attributes/servicesSections";
 import { clearAutoPartsCategories } from "@/store/features/attributes/autoPartsCategories";
 import { clearAllProductsType } from "@/store/features/AllProductsType";
+import { useGetFiltersQuery } from "@/store/apis/filtering";
 
 export function SelectedFilters() {
   const dispatch = useAppDispatch();
@@ -48,6 +49,7 @@ export function SelectedFilters() {
     height,
     weight,
     sorting,
+    Categories,
   } = useAppSelector((state) => ({
     selectedFilters: state.filters.selectedFilters,
     priceRange: state.filters.priceRange,
@@ -80,7 +82,12 @@ export function SelectedFilters() {
     weight: state.Weight,
     sorting: state.Sorting.sort_by,
     allProductsType: state.AllProductsType.allProductsType,
+    Categories: state.Categories.Categories,
   }));
+
+  const { refetch } = useGetFiltersQuery({ id: Categories.id });
+
+  console.log(selectedFilters);
 
   return (
     <div
@@ -277,6 +284,7 @@ export function SelectedFilters() {
                       name: "Cars",
                     })
                   );
+                refetch();
               }}
             />
           </span>

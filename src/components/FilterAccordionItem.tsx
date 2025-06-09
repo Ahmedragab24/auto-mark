@@ -122,7 +122,10 @@ import {
   setAutoPartsCategories,
 } from "@/store/features/attributes/autoPartsCategories";
 import { setBrandName } from "@/store/features/attributes/brandName";
-import { setModelName } from "@/store/features/attributes/modelName";
+import {
+  clearModelName,
+  setModelName,
+} from "@/store/features/attributes/modelName";
 import {
   clearAllProductsType,
   setAllProductsType,
@@ -277,6 +280,8 @@ export default function FilterAccordionItem({
           dispatch(clearBrand());
         } else {
           dispatch(setBrand(option as BrandType));
+          dispatch(clearModel());
+          dispatch(clearModelName());
         }
         break;
       case "model":

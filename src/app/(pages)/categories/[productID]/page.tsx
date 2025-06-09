@@ -516,13 +516,16 @@ export default function CarDetails() {
                       )}
                     </div>
                   </div>
-                  <iframe
-                    className="w-full h-64 m-auto rounded-md"
-                    src={`https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d54579.92187944465!2d${product.longitude}!3d${product.latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sar!2seg!4v1741196309946!5m2!1sar!2seg`}
-                    style={{ border: 0 }}
+
+                  <Image
+                    src="/Images/location.jpg"
+                    alt="location"
+                    width={300}
+                    height={300}
+                    className="w-full m-auto rounded-xl"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                  ></iframe>
+                  />
                 </Card>
               )}
           </div>
