@@ -17,9 +17,9 @@ export default function Home() {
         <ShortViewSection Content="scrap" />
         <ShortViewSection Content="SpareParts" />
         <ShortViewSection Content="services" />
+        <ShortViewSection Content="bikes" />
         <ShortViewSection Content="trucks" />
         <ShortViewSection Content="boots" />
-        <ShortViewSection Content="bikes" />
       </Suspense>
     </main>
   );

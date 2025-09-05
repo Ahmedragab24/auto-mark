@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import ReduxProvider from "./ReduxProvider";
 import { Toaster } from "@/components/ui/toaster";
 import ScrollUp from "@/components/layout/ScrollUp";
+import Script from "next/script";
 
 const geistSans = Alexandria({
   variable: "--font-alexandria-sans",
@@ -43,14 +44,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ar"
-      dir="RtL"
-      className="scroll-smooth"
-      suppressHydrationWarning
-    >
+    <html lang="ar" dir="Rtl" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <meta name="csrf-token" content="{{ csrf_token() }}" />
+        {/* <!-- Google tag (gtag.js) --> */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17263694454"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){window.dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-17263694454');
+  `}
+        </Script>
+
+        <Script id="conversion" strategy="afterInteractive">
+          {`
+    gtag('event', 'conversion', {'send_to': 'AW-17263694454/g8SACJS5oOIaEPak_KdA'});
+  `}
+        </Script>
       </head>
       <body className={`${geistSans.variable} antialiased`}>
         <ThemeProvider
